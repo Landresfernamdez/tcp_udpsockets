@@ -1,4 +1,4 @@
-import socket
+import socket,select
 import json
 import os
 import sys
@@ -34,24 +34,31 @@ def getListFiles(c):
     dataToSend = json.dumps(js).encode("utf-8")
     c.send(dataToSend)
     print(dataToSend)
-tempData=bytearray()
-conn, addr = s.accept()
 while True:
+    conn, addr = s.accept()
+    tempData=bytearray()
     while True:
-        print("Entramos denuevo")
-        dataReceived = conn.recv(4096)
-        sleep(1)
-        if sys.getsizeof(dataReceived) > 0:
-            tempData +=dataReceived
-        else:
-            print("Entro aqui 1")
-            data = json.loads(tempData.decode("utf-8"))
-            if data["param"] =="-u":
-                RealizarPeticionUpfile(data)
-                break
-            elif data["param"] =="-d":
-                downloadFile(conn,data)
-                break 
-            elif data["param"] =="-l":
-                getListFiles(conn)
-                break
+        ready = select.select([conn], [], [], 1)
+        print("esperando mensaje")
+        if ready[0]:
+            print(ready[0])
+            print("Entramos denuevo")
+            dataReceived = conn.recv(4096)
+            if dataReceived:
+                print("recibido")
+                print(dataReceived)
+                tempData +=dataReceived
+                try:
+                    data = json.loads(tempData.decode("utf-8"))
+                    if data["param"] =="-u":
+                        RealizarPeticionUpfile(data)
+                        break
+                    elif data["param"] =="-d":
+                        downloadFile(conn,data)
+                        break 
+                    elif data["param"] =="-l":
+                        getListFiles(conn)
+                        break
+                except:
+                    continue
+                

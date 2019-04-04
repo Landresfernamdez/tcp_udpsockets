@@ -1,11 +1,11 @@
 import os
 from base64 import b64encode
 import json
-import socket
+import socket,select
 import sys 
 import base64
 from time import sleep
-tempData = bytearray()
+#tempData = bytearray()
 BUFFER_SIZE=1024
 # python clienttcp.py 127.0.0.1 1234 -u cat.png ->Para subir un archivo
 def iniciar(ip,port,param,filename):
@@ -22,51 +22,47 @@ def iniciar(ip,port,param,filename):
         dataToSend = json.dumps(data).encode("utf-8")
         s.sendall(dataToSend)
     elif  param=="-d":
+        tempData = bytearray()
+        currentPath1 =os.path.dirname(os.path.abspath(__file__)) + "\\downloads\\"
         data = {"filename": filename,"param":param}
         dataToSend = json.dumps(data).encode("utf-8")
         s.sendall(dataToSend)
-        result=s.recv(100000)
-        print("result:"+result)
-        print("Conecto con el socket")
-        '''currentPath1 =os.path.dirname(os.path.abspath(__file__)) + "\\downloads\\"
         while True:
-            dataReceived = s.recv(8042)
-            print("Trajo respuesta",dataReceived)
-            if dataReceived:#sys.getsizeof(dataReceived) > 17:
-                tempData = tempData + dataReceived
-            else:
-                data = json.loads(tempData.decode("utf-8"))
-                print(data)
-                myFile = base64.b64decode(data["file"])
-                with open(currentPath1 + data["filename"], "wb") as f:
-                    f.write(myFile)
-                    f.close()
-                print("Descargo el archivo")
-                break'''
+            ready = select.select([s], [], [], 1)
+            if ready[0]:
+                dataReceived = s.recv(4096)
+                try:
+                    if dataReceived:#sys.getsizeof(dataReceived) > 17:
+                        tempData = tempData + dataReceived
+                    data = json.loads(tempData.decode("utf-8"))
+                    myFile = base64.b64decode(data["file"])
+                    with open(currentPath1 + data["filename"], "wb") as f:
+                        f.write(myFile)
+                        f.close()
+                    break
+                except:
+                    continue
+        s.close()
+                    
     elif  param=="-l":
+        tempData = bytearray()
         data = {"param":param}
         dataToSend = json.dumps(data).encode("utf-8")
-        print(dataToSend)
-        s.send(b'nomames')
-        result=s.recv(BUFFER_SIZE)
-        print(result)
-        print("Conecto con el socket")
-        '''currentPath1 =os.path.dirname(os.path.abspath(__file__)) + "\\downloads\\"
+        s.send(dataToSend)
         while True:
-            dataReceived = s.recv(8042)
-            print("Trajo respuesta",dataReceived)
-            if dataReceived:#sys.getsizeof(dataReceived) > 17:
-                tempData = tempData + dataReceived
-            else:
-                data = json.loads(tempData.decode("utf-8"))
-                print(data)
-                myFile = base64.b64decode(data["file"])
-                with open(currentPath1 + data["filename"], "wb") as f:
-                    f.write(myFile)
-                    f.close()
-                print("Descargo el archivo")
-                break'''
-    #s.close()
+            print("Entro aqui")
+            ready = select.select([s], [], [], 1)
+            if ready[0]:
+                dataReceived = s.recv(4096)
+                try:
+                    if dataReceived:
+                        tempData = tempData + dataReceived
+                        data = json.loads(tempData.decode("utf-8"))
+                        print("El archivo cuenta con :",data["list"])
+                        break
+                except:
+                    continue
+        s.close()
     
 if __name__ == "__main__":
     if len(sys.argv)==5:

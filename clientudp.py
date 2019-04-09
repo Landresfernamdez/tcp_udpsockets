@@ -1,12 +1,89 @@
+import os
+from base64 import b64encode
+import json
 import socket
-msgFromClient = "Hello UDP Server"
-bytesToSend = str.encode(msgFromClient)
-serverAddressPort = ("127.0.0.1", 20001)
-bufferSize = 1024
-# Create a UDP socket at client side
-UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-# Send to server using created UDP socket
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromServer = UDPClientSocket.recvfrom(bufferSize)
-msg = "Message from Server {}".format(msgFromServer[0])
-print(msg)
+import select
+import sys
+import base64
+from time import sleep
+#tempData = bytearray()
+BUFFER_SIZE = 1024
+# python clientudp.py 127.0.0.1 5002 -u cat.png ->Para subir un archivo
+
+
+def iniciar(ip, port, param, filename):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.settimeout(10)
+    if param == "-u":
+        currentPath = os.path.dirname(
+            os.path.abspath(__file__)) + "\\filestosend\\"
+        with open(currentPath + filename, "rb") as f:
+            l = f.read()
+        base64_bytes = b64encode(l)
+        myFile = base64_bytes.decode("utf-8")
+        data = {"filename": filename, "file": myFile, "param": param}
+        dataToSend = json.dumps(data).encode("utf-8")
+        for i in range(0, len(dataToSend), 2):
+            dt = dataToSend[i:i+2]
+            s.sendto(dt, (ip, int(port)))
+        print("prueba:", sys.getsizeof(dataToSend), "type:", type(dataToSend))
+
+    elif param == "-d":
+        tempData = bytearray()
+        currentPath1 = os.path.dirname(
+            os.path.abspath(__file__)) + "\\downloads\\"
+        data = {"filename": filename, "param": param}
+        ds = json.dumps(data).encode("utf-8")
+        print(ds)
+        for i in range(0, len(ds), 2):
+            dt = ds[i:i+2]
+            print(dt)
+            s.sendto(dt, (ip, int(port)))
+        while True:
+            print("Espera mensaje")
+            ready = select.select([s], [], [], 1)
+            if ready[0]:
+                dataReceived = s.recvfrom(BUFFER_SIZE)
+                print("Llego mensaje")
+                try:
+                    if dataReceived:  # sys.getsizeof(dataReceived) > 17:
+                        print("Recibio:",dataReceived)
+                        tempData = tempData + dataReceived
+                    data = json.loads(tempData.decode("utf-8"))
+                    myFile = base64.b64decode(data["file"])
+                    with open(currentPath1 + data["filename"], "wb") as f:
+                        f.write(myFile)
+                        f.close()
+                    break
+                except:
+                    continue
+        s.close()
+
+    elif param == "-l":
+        tempData = bytearray()
+        data = {"param": param}
+        dataToSend = json.dumps(data).encode("utf-8")
+        for i in range(0, len(dataToSend), 2):
+            dt = dataToSend[i:i+2]
+            s.sendto(dt, (ip, int(port)))
+        while True:
+            print("Entro aqui")
+            ready = select.select([s], [], [], 1)
+            if ready[0]:
+                dataReceived = s.recvfrom(BUFFER_SIZE)
+                try:
+                    if dataReceived:
+                        tempData = tempData + dataReceived
+                        data = json.loads(tempData.decode("utf-8"))
+                        print("El archivo cuenta con :", data["list"])
+                        break
+                except:
+                    continue
+        s.close()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 5:
+        iniciar(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    else:
+        print("Debe digitar los argumentos correctmente")

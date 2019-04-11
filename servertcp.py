@@ -41,7 +41,6 @@ while True:
         ready = select.select([conn], [], [], 1)
         print("esperando mensaje")
         if ready[0]:
-            print(ready[0])
             print("Entramos denuevo")
             dataReceived = conn.recv(4096)
             if dataReceived:

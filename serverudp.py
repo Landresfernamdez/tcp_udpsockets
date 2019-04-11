@@ -29,12 +29,12 @@ def downloadFile(c,data1,addr):
         c.sendto(dt,addr)
     print("Envio para el cliente")
 def getListFiles(c,addr):
+    print("Entro a la funcion --------------------------------------------------------")
     lista=os.listdir(os.path.dirname(os.path.abspath(__file__)) + "\\files\\")
     js = {"list": lista}
     dataToSend = json.dumps(js).encode("utf-8")
-    for i in range(0, len(dataToSend), 2):
-        dt = dataToSend[i:i+2]
-        c.sendto(dt,addr)
+    c.sendto(dataToSend,addr)
+    print("Realizo la funcion")
 while True:
     tempData=bytearray()
     while True:
@@ -42,10 +42,9 @@ while True:
         print("esperando mensaje")
         if ready[0]:
             print("Entramos denuevo")
-            dataReceived,addrees = s.recvfrom(1024)
+            dataReceived,addrees = s.recvfrom(51200)
             if dataReceived:
-                print("recibido")
-                print(dataReceived)
+                print("Recibido:",dataReceived)
                 tempData +=dataReceived
                 try:
                     data = json.loads(tempData.decode("utf-8"))
@@ -53,11 +52,14 @@ while True:
                         RealizarPeticionUpfile(data)
                         break
                     elif data["param"] =="-d":
-                        downloadFile(s,data,("127.0.0.1", 5002))
+                        print("Entro a prueba")
+
+                        downloadFile(s,data,addrees)
                         break 
                     elif data["param"] =="-l":
-                        getListFiles(s,("127.0.0.1", 5002))
+                        print(addrees)
+                        print("Entro a prueba")
+                        getListFiles(s,addrees)
                         break
                 except:
                     continue
-                

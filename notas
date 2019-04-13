@@ -1,0 +1,17 @@
+sudo docker build -t "servertcp" .
+sudo docker run --name test idImage
+
+Login docherhub
+sudo docker login --username=andresf12 --password=86374844botas
+
+Delete image
+sudo docker rmi 037f408e8a66
+
+Delete container
+sudo docker rm cb9c32663ff1
+
+sudo docker tag tcpserver andresf12/tcpserver:firstcommit
+
+sudo docker push andresf12/tcpserver:firstcommit
+
+

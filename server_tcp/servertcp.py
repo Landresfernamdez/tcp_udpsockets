@@ -7,7 +7,7 @@ from base64 import b64encode
 from time import sleep
 currentPath = os.path.dirname(os.path.abspath(__file__)) + "\\files\\"
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("127.0.0.1", 5005))
+s.bind(("localhost", 5005))
 s.listen(5)
 print("socket is listening")
 tempData = bytearray()

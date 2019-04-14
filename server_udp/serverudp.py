@@ -13,7 +13,7 @@ print("Name of the localhost is {}".format(myHostName))
 # Get the IP address of the local host
 myIP = socket.gethostbyname(myHostName)
 print("My Ip is:"+myIP)
-s.bind((myIP, 5002))
+s.bind((myIP, 5005))
 print("socket is listening")
 tempData = bytearray()
 def RealizarPeticionUpfile(data):

@@ -78,4 +78,6 @@ if __name__ == "__main__":
     if len(sys.argv)==5:
         iniciar(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
     else: 
-        print("Debe digitar los argumentos correctamente")
+	print("Debe digitar los argumentos correctamente")
+
+

@@ -9,7 +9,7 @@ from time import sleep
 import platform
 #tempData = bytearray()
 BUFFER_SIZE = 51200
-# python clientudp.py 127.0.0.1 5002 -u cat.png ->Para subir un archivo
+# python clientudp.py 172.17.0.2 5005 -u cat.png ->Para subir un archivo
 
 def iniciar(ip, port, param, filename):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -89,4 +89,4 @@ if __name__ == "__main__":
     if len(sys.argv) == 5:
         iniciar(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
     else:
-        print("Debe digitar los argumentos correctmente")
+	print("Debe digitar los argumentos correctmente")

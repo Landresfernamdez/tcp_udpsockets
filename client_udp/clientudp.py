@@ -6,6 +6,7 @@ import select
 import sys
 import base64
 from time import sleep
+import platform
 #tempData = bytearray()
 BUFFER_SIZE = 51200
 # python clientudp.py 127.0.0.1 5002 -u cat.png ->Para subir un archivo
@@ -14,8 +15,13 @@ def iniciar(ip, port, param, filename):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     #s.settimeout(2)
     if param == "-u":
+        carpetafilestosend=""
+        if platform.system()=='Windows':
+            carpetafilestosend="\\filestosend\\"
+        if platform.system()=='Linux':
+            carpetafilestosend="/filestosend/"
         currentPath = os.path.dirname(
-            os.path.abspath(__file__)) + "\\filestosend\\"
+            os.path.abspath(__file__)) + carpetafilestosend
         with open(currentPath + filename, "rb") as f:
             l = f.read()
         base64_bytes = b64encode(l)
@@ -25,12 +31,16 @@ def iniciar(ip, port, param, filename):
         for i in range(0, len(dataToSend), 2):
             dt = dataToSend[i:i+2]
             s.sendto(dt, (ip, int(port)))
-        print("prueba:", sys.getsizeof(dataToSend), "type:", type(dataToSend))
 
     elif param == "-d":
         tempData = bytearray()
+        carpetafilesdownloads=""
+        if platform.system()=='Windows':
+            carpetafilesdownloads="\\downloads\\"
+        if platform.system()=='Linux':
+            carpetafilesdownloads="/downloads/"
         currentPath1 = os.path.dirname(
-            os.path.abspath(__file__)) + "\\downloads\\"
+            os.path.abspath(__file__)) + carpetafilesdownloads
         data = {"filename": filename, "param": param}
         ds = json.dumps(data).encode("utf-8")
         s.sendto(ds,(ip, int(port)))
@@ -39,8 +49,6 @@ def iniciar(ip, port, param, filename):
             ready = select.select([s], [], [], 1)
             if ready[0]:
                 dataReceived,adress  = s.recvfrom(BUFFER_SIZE)
-                print("Llego mensaje")
-                print(dataReceived)
                 try:
                     if dataReceived:  # sys.getsizeof(dataReceived) > 17:
                         tempData = tempData + dataReceived

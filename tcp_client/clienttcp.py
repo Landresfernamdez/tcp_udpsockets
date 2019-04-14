@@ -5,6 +5,7 @@ import socket,select
 import sys 
 import base64
 from time import sleep
+import platform
 #tempData = bytearray()
 BUFFER_SIZE=1024
 # python clienttcp.py 127.0.0.1 1234 -u cat.png ->Para subir un archivo
@@ -13,7 +14,12 @@ def iniciar(ip,port,param,filename):
     #s.settimeout(10)
     s.connect((ip,int(port)))
     if param=="-u":
-        currentPath =os.path.dirname(os.path.abspath(__file__)) + "\\filestosend\\"
+        carpetafilestosend=""
+        if platform.system()=='Windows':
+            carpetafilestosend="\\filestosend\\"
+        if platform.system()=='Linux':
+            carpetafilestosend="/filestosend/"
+        currentPath =os.path.dirname(os.path.abspath(__file__)) +carpetafilestosend
         with open(currentPath + filename, "rb") as f:
             l = f.read()
         base64_bytes = b64encode(l)
@@ -23,7 +29,12 @@ def iniciar(ip,port,param,filename):
         s.sendall(dataToSend)
     elif  param=="-d":
         tempData = bytearray()
-        currentPath1 =os.path.dirname(os.path.abspath(__file__)) + "\\downloads\\"
+        carpetafilesdownloads=""
+        if platform.system()=='Windows':
+            carpetafilesdownloads="\\downloads\\"
+        if platform.system()=='Linux':
+            carpetafilesdownloads="/downloads/"
+        currentPath1 =os.path.dirname(os.path.abspath(__file__)) + carpetafilesdownloads
         data = {"filename": filename,"param":param}
         dataToSend = json.dumps(data).encode("utf-8")
         s.sendall(dataToSend)
@@ -50,7 +61,6 @@ def iniciar(ip,port,param,filename):
         dataToSend = json.dumps(data).encode("utf-8")
         s.send(dataToSend)
         while True:
-            print("Entro aqui")
             ready = select.select([s], [], [], 1)
             if ready[0]:
                 dataReceived = s.recv(4096)
@@ -68,4 +78,4 @@ if __name__ == "__main__":
     if len(sys.argv)==5:
         iniciar(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4])
     else: 
-        print("Debe digitar los argumentos correctmente")
+        print("Debe digitar los argumentos correctamente")

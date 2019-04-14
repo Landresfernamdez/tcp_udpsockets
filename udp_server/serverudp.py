@@ -5,19 +5,36 @@ import sys
 import base64
 from base64 import b64encode
 from time import sleep
-currentPath = os.path.dirname(os.path.abspath(__file__)) + "\\files\\"
+import platform
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.bind(("127.0.0.1", 5002))
+# Get the local host name
+myHostName = socket.gethostname()
+print("Name of the localhost is {}".format(myHostName))
+# Get the IP address of the local host
+myIP = socket.gethostbyname(myHostName)
+print("My Ip is:"+myIP)
+s.bind((myIP, 5002))
 print("socket is listening")
 tempData = bytearray()
 def RealizarPeticionUpfile(data):
+    carpetafiles=""
+    if platform.system()=='Windows':
+        carpetafiles="\\files\\"
+    if platform.system()=='Linux':
+        carpetafiles="/files/"
+    currentPath = os.path.dirname(os.path.abspath(__file__)) + carpetafiles
     myFile = base64.b64decode(data["file"])
     with open(currentPath + data["filename"], "wb") as f:
         f.write(myFile)
         f.close()
 def downloadFile(c,data1,addr):
     print("Entro a descargar")
-    currentPath1 = os.path.dirname(os.path.abspath(__file__)) + "\\files\\"
+    carpetafiles=""
+    if platform.system()=='Windows':
+        carpetafiles="\\files\\"
+    if platform.system()=='Linux':
+        carpetafiles="/files/"
+    currentPath1 = os.path.dirname(os.path.abspath(__file__)) + carpetafiles
     with open(currentPath1 + data1["filename"], "rb") as f:
         l = f.read()
     base64_bytes = b64encode(l)
@@ -29,8 +46,13 @@ def downloadFile(c,data1,addr):
         c.sendto(dt,addr)
     print("Envio para el cliente")
 def getListFiles(c,addr):
+    carpetafiles=""
+    if platform.system()=='Windows':
+        carpetafiles="\\files\\"
+    if platform.system()=='Linux':
+        carpetafiles="/files/"
     print("Entro a la funcion --------------------------------------------------------")
-    lista=os.listdir(os.path.dirname(os.path.abspath(__file__)) + "\\files\\")
+    lista=os.listdir(os.path.dirname(os.path.abspath(__file__)) + carpetafiles)
     js = {"list": lista}
     dataToSend = json.dumps(js).encode("utf-8")
     c.sendto(dataToSend,addr)

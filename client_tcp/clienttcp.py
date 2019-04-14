@@ -8,7 +8,7 @@ from time import sleep
 import platform
 #tempData = bytearray()
 BUFFER_SIZE=1024
-# python clienttcp.py 127.0.0.1 1234 -u cat.png ->Para subir un archivo
+# python clienttcp.py 127.0.0.1 5005 -u cat.png ->Para subir un archivo
 def iniciar(ip,port,param,filename):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #s.settimeout(10)

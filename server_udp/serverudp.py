@@ -28,7 +28,6 @@ def RealizarPeticionUpfile(data):
         f.write(myFile)
         f.close()
 def downloadFile(c,data1,addr):
-    print("Entro a descargar")
     carpetafiles=""
     if platform.system()=='Windows':
         carpetafiles="\\files\\"
@@ -51,22 +50,17 @@ def getListFiles(c,addr):
         carpetafiles="\\files\\"
     if platform.system()=='Linux':
         carpetafiles="/files/"
-    print("Entro a la funcion --------------------------------------------------------")
     lista=os.listdir(os.path.dirname(os.path.abspath(__file__)) + carpetafiles)
     js = {"list": lista}
     dataToSend = json.dumps(js).encode("utf-8")
     c.sendto(dataToSend,addr)
-    print("Realizo la funcion")
 while True:
     tempData=bytearray()
     while True:
         ready = select.select([s], [], [], 1)
-        print("esperando mensaje")
         if ready[0]:
-            print("Entramos denuevo")
             dataReceived,addrees = s.recvfrom(51200)
             if dataReceived:
-                print("Recibido:",dataReceived)
                 tempData +=dataReceived
                 try:
                     data = json.loads(tempData.decode("utf-8"))
@@ -74,13 +68,9 @@ while True:
                         RealizarPeticionUpfile(data)
                         break
                     elif data["param"] =="-d":
-                        print("Entro a prueba")
-
                         downloadFile(s,data,addrees)
                         break 
                     elif data["param"] =="-l":
-                        print(addrees)
-                        print("Entro a prueba")
                         getListFiles(s,addrees)
                         break
                 except:

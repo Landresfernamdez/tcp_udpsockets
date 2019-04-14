@@ -29,7 +29,6 @@ def RealizarPeticionUpfile(data):
         f.write(myFile)
         f.close()
 def downloadFile(c,data1):
-    print("Entro a descargar")
     carpetafiles=""
     if platform.system()=='Windows':
         carpetafiles="\\files\\"
@@ -43,8 +42,6 @@ def downloadFile(c,data1):
     data1 = {"filename": data1["filename"], "file": myFile}
     dataToSend = json.dumps(data1).encode("utf-8")
     c.sendall(dataToSend)
-    print("Envio para el cliente")
-    #print(dataToSend)
 def getListFiles(c):
     carpetafiles=""
     if platform.system()=='Windows':
@@ -55,19 +52,14 @@ def getListFiles(c):
     js = {"list": lista}
     dataToSend = json.dumps(js).encode("utf-8")
     c.send(dataToSend)
-    print(dataToSend)
 while True:
     conn, addr = s.accept()
     tempData=bytearray()
     while True:
         ready = select.select([conn], [], [], 1)
-        print("esperando mensaje")
         if ready[0]:
-            print("Entramos denuevo")
             dataReceived = conn.recv(4096)
             if dataReceived:
-                print("recibido")
-                print(dataReceived)
                 tempData +=dataReceived
                 try:
                     data = json.loads(tempData.decode("utf-8"))
